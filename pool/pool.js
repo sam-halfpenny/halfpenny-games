@@ -320,23 +320,43 @@ class Ball{
             this.dead=true
             if(playerballred.p1!='nc'){
                 if(cue_ball.wasp1turn){
-                    if(this.red=playerballred.p1){
+                    if(this.red==playerballred.p1){
                         cue_ball.p1turn=true//extra go
                         cue_ball.goes=1
                     }
-                    else{
+                    else if(this.red==false){
                         cue_ball.p1turn=false
                         cue_ball.goes=2//fouled
                     }
+                    else{
+                        if(cue_ball.onblack.p1){
+                            dead=true
+                            EGcolor='#0ff'
+                        }
+                        else{
+                            dead=true
+                            EGcolor='#f0f'
+                        }
+                    }
                 }
                 else{
-                    if(this.red=playerballred.p2){
+                    if(this.red==playerballred.p2){
                         cue_ball.p1turn=false//extra go
                         cue_ball.goes=1
                     }
-                    else{
+                    else if(this.red==false){
                         cue_ball.p1turn=true
                         cue_ball.goes=2//fouled
+                    }
+                    else{
+                        if(cue_ball.onblack.p2){
+                            dead=true
+                            EGcolor='#0ff'
+                        }
+                        else{
+                            dead=true
+                            EGcolor='#f0f'
+                        }
                     }
                 }
             }
@@ -367,24 +387,12 @@ class Ball{
                 }
                 else{
                     if(cue_ball.wasp1turn){
-                        if(cue_ball.onblack.p1){
-                            dead=true
-                            EGcolor='#0ff'
-                        }
-                        else{
-                            dead=true
-                            EGcolor='#f0f'
-                        }
+                        dead=true
+                        EGcolor='#f0f'
                     }
                     else{
-                        if(cue_ball.onblack.p2){
-                            dead=true
-                            EGcolor='#f0f'
-                        }
-                        else{
-                            dead=true
-                            EGcolor='#0ff'
-                        }
+                        dead=true
+                        EGcolor='#ff0'
                     }
                 }
             }
@@ -393,8 +401,16 @@ class Ball{
             if(!ball.dead){
                 if(this.identifier!=ball.identifier){
                     if(CircleDetect(this.position,this.size,ball.position,ball.size)){
-                        let reversepos=reverse(ball.position,ball.size,this.position,this.size,ball.speed)
-                        ball.position=reversepos
+                        let magb = Math.sqrt(Math.pow(ball.speed.x,2)+Math.pow(ball.speed.y,2))
+                        let magt = Math.sqrt(Math.pow(this.speed.x,2)+Math.pow(this.speed.y,2))
+                        if(magb>magt){
+                            let reversepos=reverse(ball.position,ball.size,this.position,this.size,ball.speed)
+                            ball.position=reversepos
+                        }
+                        else{
+                            let reversepos=reverse(this.position,this.size,ball.position,ball.size,this.speed)
+                            this.position=reversepos
+                        }
                         let A=pndiff(ball.position,this.position)
                         let speed1 = recoordinate(this.speed,A)
                         let speed2 = recoordinate(ball.speed,A)
@@ -412,7 +428,16 @@ class Ball{
     }
     detectCue(){
         if(CircleDetect(this.position,this.size,cue_ball.position,cue_ball.size)){
-            cue_ball.position=reverse(cue_ball.position,cue_ball.size,this.position,this.size,cue_ball.speed)
+            let magb = Math.sqrt(Math.pow(cue_ball.speed.x,2)+Math.pow(cue_ball.speed.y,2))
+            let magt = Math.sqrt(Math.pow(this.speed.x,2)+Math.pow(this.speed.y,2))
+            if(magb>magt){
+                let reversepos=reverse(cue_ball.position,cue_ball.size,this.position,this.size,cue_ball.speed)
+                cue_ball.position=reversepos
+            }
+            else{
+                let reversepos=reverse(this.position,this.size,cue_ball.position,cue_ball.size,this.speed)
+                this.position=reversepos
+            }
             let A=pndiff(cue_ball.position,this.position)
             let speed1 = recoordinate(this.speed,A)
             let speed2 = recoordinate(cue_ball.speed,A)
@@ -490,12 +515,13 @@ class Handler{
 function reverse(pos1,rad1,pos2,rad2,speed){
     let Speed=unit_vector(speed)
     if(speed.x==0 && speed.y==0){
-        let sur=rad1+rad2+3
+        let sur=rad1+rad2+1
         let dvector=unit_vector(pndiff(pos1,pos2))
         console.log(CircleDetect({x:pos2.x+dvector.x*sur,y:pos2.y+dvector.y*sur},rad1,pos2,rad2))
         return {x:pos2.x+dvector.x*sur,y:pos2.y+dvector.y*sur}
     }
     let newpos1={x:pos1.x-Speed.x,y:pos1.y-Speed.y}
+    console.log(newpos1,Speed)
     if(CircleDetect(newpos1,rad1,pos2,rad2)){
         return reverse(newpos1,rad1,pos2,rad2,speed)
     }
@@ -624,21 +650,23 @@ for(var i=0;i<7;i++){
 }
 balls.push(new Ball(GAME_WIDTH,GAME_HEIGHT,'#000',{x:300-20*i,y:311},14))
 let r3=Math.sqrt(3)/2
+let gap=1    
+let dbb = balls[0].size*2+gap
 balls[0].position={x:300,y:300}
-balls[1].position={x:300-23*r3,y:300+23/2}
-balls[2].position={x:300-23*r3*2,y:300-23}
-balls[3].position={x:300-23*r3*3,y:300-23/2}
-balls[4].position={x:300-23*r3*3,y:300+3*23/2}
-balls[5].position={x:300-23*r3*4,y:300-2*23}
-balls[6].position={x:300-23*r3*4,y:300}
-balls[7].position={x:300-23*r3,y:300-23/2}
-balls[8].position={x:300-23*r3*2,y:300+23}
-balls[9].position={x:300-23*r3*3,y:300-3*23/2}
-balls[10].position={x:300-23*r3*3,y:300+23/2}
-balls[11].position={x:300-23*r3*4,y:300-23}
-balls[12].position={x:300-23*r3*4,y:300+23}
-balls[13].position={x:300-23*r3*4,y:300+2*23}
-balls[14].position={x:300-23*r3*2,y:300}
+balls[1].position={x:300-dbb*r3,y:300+dbb/2}
+balls[2].position={x:300-dbb*r3*2,y:300-dbb}
+balls[3].position={x:300-dbb*r3*3,y:300-dbb/2}
+balls[4].position={x:300-dbb*r3*3,y:300+3*dbb/2}
+balls[5].position={x:300-dbb*r3*4,y:300-2*dbb}
+balls[6].position={x:300-dbb*r3*4,y:300}
+balls[7].position={x:300-dbb*r3,y:300-dbb/2}
+balls[8].position={x:300-dbb*r3*2,y:300+dbb}
+balls[9].position={x:300-dbb*r3*3,y:300-3*dbb/2}
+balls[10].position={x:300-dbb*r3*3,y:300+dbb/2}
+balls[11].position={x:300-dbb*r3*4,y:300-dbb}
+balls[12].position={x:300-dbb*r3*4,y:300+dbb}
+balls[13].position={x:300-dbb*r3*4,y:300+2*dbb}
+balls[14].position={x:300-dbb*r3*2,y:300}
 cue_ball = new Cue_ball(GAME_WIDTH,GAME_HEIGHT)
 new Handler(cue_ball);
 
