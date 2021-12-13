@@ -650,7 +650,7 @@ for(var i=0;i<7;i++){
 }
 balls.push(new Ball(GAME_WIDTH,GAME_HEIGHT,'#000',{x:300-20*i,y:311},14))
 let r3=Math.sqrt(3)/2
-let gap=1    
+let gap=3  
 let dbb = balls[0].size*2+gap
 balls[0].position={x:300,y:300}
 balls[1].position={x:300-dbb*r3,y:300+dbb/2}
