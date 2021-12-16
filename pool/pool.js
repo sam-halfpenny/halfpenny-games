@@ -277,7 +277,7 @@ class Ball{
         if(this.color=='#f00'){
             this.red=true
         }
-        else if(this.color==false){
+        else if(this.color=='#ff0'){
             this.red=false
         }
         else{
@@ -324,11 +324,7 @@ class Ball{
                         cue_ball.p1turn=true//extra go
                         cue_ball.goes=1
                     }
-                    else if(this.red==false){
-                        cue_ball.p1turn=false
-                        cue_ball.goes=2//fouled
-                    }
-                    else{
+                    else if(this.red=='b'){
                         if(cue_ball.onblack.p1){
                             dead=true
                             EGcolor='#0ff'
@@ -338,17 +334,17 @@ class Ball{
                             EGcolor='#f0f'
                         }
                     }
+                    else{
+                        cue_ball.p1turn=false
+                        cue_ball.goes=2//fouled
+                    }
                 }
                 else{
                     if(this.red==playerballred.p2){
                         cue_ball.p1turn=false//extra go
                         cue_ball.goes=1
                     }
-                    else if(this.red==false){
-                        cue_ball.p1turn=true
-                        cue_ball.goes=2//fouled
-                    }
-                    else{
+                    else if(this.red=='b'){
                         if(cue_ball.onblack.p2){
                             dead=true
                             EGcolor='#0ff'
@@ -357,6 +353,10 @@ class Ball{
                             dead=true
                             EGcolor='#f0f'
                         }
+                    }
+                    else{
+                        cue_ball.p1turn=true
+                        cue_ball.goes=2//fouled
                     }
                 }
             }
@@ -401,16 +401,9 @@ class Ball{
             if(!ball.dead){
                 if(this.identifier!=ball.identifier){
                     if(CircleDetect(this.position,this.size,ball.position,ball.size)){
-                        let magb = Math.sqrt(Math.pow(ball.speed.x,2)+Math.pow(ball.speed.y,2))
-                        let magt = Math.sqrt(Math.pow(this.speed.x,2)+Math.pow(this.speed.y,2))
-                        if(magb>magt){
-                            let reversepos=reverse(ball.position,ball.size,this.position,this.size,ball.speed)
-                            ball.position=reversepos
-                        }
-                        else{
-                            let reversepos=reverse(this.position,this.size,ball.position,ball.size,this.speed)
-                            this.position=reversepos
-                        }
+                        let reversepoints = reverse1(this.position,this.size,this.speed,ball.position,ball.size,ball.speed)
+                        this.position=reversepoints.p1
+                        ball.position=reversepoints.p2
                         let A=pndiff(ball.position,this.position)
                         let speed1 = recoordinate(this.speed,A)
                         let speed2 = recoordinate(ball.speed,A)
@@ -428,16 +421,9 @@ class Ball{
     }
     detectCue(){
         if(CircleDetect(this.position,this.size,cue_ball.position,cue_ball.size)){
-            let magb = Math.sqrt(Math.pow(cue_ball.speed.x,2)+Math.pow(cue_ball.speed.y,2))
-            let magt = Math.sqrt(Math.pow(this.speed.x,2)+Math.pow(this.speed.y,2))
-            if(magb>magt){
-                let reversepos=reverse(cue_ball.position,cue_ball.size,this.position,this.size,cue_ball.speed)
-                cue_ball.position=reversepos
-            }
-            else{
-                let reversepos=reverse(this.position,this.size,cue_ball.position,cue_ball.size,this.speed)
-                this.position=reversepos
-            }
+            let reversepoints = reverse1(this.position,this.size,this.speed,cue_ball.position,cue_ball.size,cue_ball.speed)
+            this.position=reversepoints.p1
+            cue_ball.position=reversepoints.p2
             let A=pndiff(cue_ball.position,this.position)
             let speed1 = recoordinate(this.speed,A)
             let speed2 = recoordinate(cue_ball.speed,A)
@@ -512,22 +498,39 @@ class Handler{
 
     }
 }
-function reverse(pos1,rad1,pos2,rad2,speed){
-    let Speed=unit_vector(speed)
-    if(speed.x==0 && speed.y==0){
-        let sur=rad1+rad2+1
-        let dvector=unit_vector(pndiff(pos1,pos2))
-        console.log(CircleDetect({x:pos2.x+dvector.x*sur,y:pos2.y+dvector.y*sur},rad1,pos2,rad2))
-        return {x:pos2.x+dvector.x*sur,y:pos2.y+dvector.y*sur}
-    }
-    let newpos1={x:pos1.x-Speed.x,y:pos1.y-Speed.y}
-    console.log(newpos1,Speed)
-    if(CircleDetect(newpos1,rad1,pos2,rad2)){
-        return reverse(newpos1,rad1,pos2,rad2,speed)
+function reverse1(pos1,rad1,speed1,pos2,rad2,speed2){
+    let mag1 = Math.sqrt(Math.pow(speed1.x,2)+Math.pow(speed1.y,2))
+    let mag2 = Math.sqrt(Math.pow(speed2.x,2)+Math.pow(speed2.y,2))
+    let Speed1
+    let Speed2
+    if(mag2>mag1){
+        Speed1={
+            x:speed1.x/mag2,
+            y:speed1.y/mag2
+        }
+        Speed2={
+            x:speed2.x/mag2,
+            y:speed2.y/mag2
+        }
     }
     else{
-        console.log(CircleDetect(newpos1,rad1,pos2,rad2))
-        return newpos1
+        Speed1={
+            x:speed1.x/mag1,
+            y:speed1.y/mag1
+        }
+        Speed2={
+            x:speed2.x/mag1,
+            y:speed2.y/mag1
+        }
+    }
+    console.log(Speed1,Speed2)
+    let newpos1={x:pos1.x-Speed1.x,y:pos1.y-Speed1.y}
+    let newpos2={x:pos2.x-Speed2.x,y:pos2.y-Speed2.y}
+    if(CircleDetect(newpos1,rad1,pos2,rad2)){
+        return reverse1(newpos1,rad1,speed1,newpos2,rad2,speed2)
+    }
+    else{
+        return {p1:newpos1,p2:newpos2}
     }
 }
 function pndiff(p1,p2){
@@ -619,7 +622,7 @@ function dot_product(vector1,vector2){
     return vector1.x*vector2.x+vector1.y*vector2.y
 }
 function unit_vector(a){
-    if(a=={x:0,y:0}){
+    if(a.x==0 && a.y==0){
         return {x:0,y:0}
     }
     let a_mag=Math.sqrt(Math.pow(a.x,2)+Math.pow(a.y,2))
@@ -650,7 +653,7 @@ for(var i=0;i<7;i++){
 }
 balls.push(new Ball(GAME_WIDTH,GAME_HEIGHT,'#000',{x:300-20*i,y:311},14))
 let r3=Math.sqrt(3)/2
-let gap=3  
+let gap=3
 let dbb = balls[0].size*2+gap
 balls[0].position={x:300,y:300}
 balls[1].position={x:300-dbb*r3,y:300+dbb/2}
