@@ -108,6 +108,7 @@ class Cue_ball{
         }
     }
     fupdate(){
+        this.wasp1turn=this.p1turn
         if(this.position.x<this.size){
             this.position.x=this.size;
         }
@@ -251,9 +252,10 @@ class Cue_ball{
             this.speed.y=-this.speed.y*wall_cor
         }
         if(pots.inPot(this.position)){
+            this.p1turn=!this.wasp1turn
             this.fouled=true
             this.aim.drawn=false
-            this.goes++
+            this.goes=2
             this.position={x:this.gamewidth/2,y:this.gameheight/2}
             this.speed={x:0,y:0}
         }
