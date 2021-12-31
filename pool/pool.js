@@ -679,6 +679,7 @@ let lastTime = 0
 cue_ball.draw(ctx)
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -731,6 +732,8 @@ function gameloop(timestamp) {
     document.getElementById('playerballs').textContent='player1(cyan) is '+playerball.p1+'; player2(magenta) is '+playerball.p2
     cue_ball.draw(ctx);
     if(!dead){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
     else{

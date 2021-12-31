@@ -467,6 +467,7 @@ console.table(course)
 let lastTime = 0
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -492,6 +493,8 @@ function gameloop(timestamp) {
     timer = timer + 1
     if(!dead){
         if(roller[0]<course[0].length){
+            while((Date.now()-start)<15){
+            }
             requestAnimationFrame(gameloop)
         }
         else{

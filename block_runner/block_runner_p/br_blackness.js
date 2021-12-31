@@ -305,6 +305,7 @@ boing.degrav()
 boing.degrav()
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -439,6 +440,8 @@ function gameloop(timestamp) {
     // }
     if(!dead){
         if(roller<course.length){
+            while((Date.now()-start)<15){
+            }
             requestAnimationFrame(gameloop)
         }
         else{

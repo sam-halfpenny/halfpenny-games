@@ -257,6 +257,7 @@ new Handler(boing)
 let lastTime = 0
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -266,6 +267,8 @@ function gameloop(timestamp) {
     F_obsticle.draw2(ctx)
     F_obsticle.update(deltaTime)
     if(!boing.dead){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
     else{

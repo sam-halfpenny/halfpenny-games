@@ -152,6 +152,7 @@ let lastTime = 0
 dodger.draw(ctx)
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -170,7 +171,10 @@ function gameloop(timestamp) {
     ball6.update()
     ball6.draw(ctx)
     score += (ball1.speed.x/50 + ball2.speed.x/50 + ball3.speed.x/50 + ball4.speed.x/50 + ball5.speed.x/50 + ball6.speed.x/50)
-    if(!ball1.dead && !ball2.dead && !ball3.dead && !ball4.dead && !ball5.dead && !ball6.dead)
+    if(!ball1.dead && !ball2.dead && !ball3.dead && !ball4.dead && !ball5.dead && !ball6.dead){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
+    }
 }
 requestAnimationFrame(gameloop)
