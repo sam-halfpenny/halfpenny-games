@@ -347,6 +347,7 @@ let ctx = canvas.getContext('2d')
 loop=0
 let lastTime = 0
 function gameloop(timestamp) {
+    var start = Date.now()
     loop++
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
@@ -361,9 +362,9 @@ function gameloop(timestamp) {
     sheepdog1.draw(ctx)
     sheepdog1.update()
     if(!end && !kill){
-        setTimeout(function(){
-            requestAnimationFrame(gameloop)
-        },0)
+        while((Date.now()-start)<15){
+        }
+        requestAnimationFrame(gameloop)
     }
     else if(end){
         WORLDBOOM('boom')

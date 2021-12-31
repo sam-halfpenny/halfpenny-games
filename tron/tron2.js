@@ -425,6 +425,7 @@ let lastTime = 0
 dodger1.draw(ctx)
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -439,6 +440,8 @@ function gameloop(timestamp) {
     dodger1.len+=0.05
     dodger2.len+=0.05
     if(!deadb&&!deadp){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
     else{

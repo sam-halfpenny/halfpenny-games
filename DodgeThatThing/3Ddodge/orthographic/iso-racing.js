@@ -386,6 +386,7 @@ let faces = [
 let lastTime = 0
 let loop=0
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     loop++
@@ -406,6 +407,8 @@ function gameloop(timestamp) {
             ball.update()
         }
     })
+    while((Date.now()-start)<15){
+    }
     requestAnimationFrame(gameloop)
 }
 requestAnimationFrame(gameloop)

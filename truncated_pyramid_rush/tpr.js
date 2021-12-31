@@ -438,6 +438,7 @@ let loop=0
 function gameloop(timestamp) {
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
+    var start = Date.now()
     loop++
     ctx.clearRect(0,0,600,600);
     if(loop%50==0){
@@ -483,6 +484,8 @@ function gameloop(timestamp) {
         'score:'+loop;
     dodger1.update()
     if(!dead){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
 }

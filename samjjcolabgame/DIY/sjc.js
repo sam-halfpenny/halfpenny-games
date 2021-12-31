@@ -1,5 +1,6 @@
 end=0
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     if(!dead){
@@ -49,6 +50,8 @@ function gameloop(timestamp) {
         }
     }
     if(!kill){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
     else{
@@ -56,6 +59,8 @@ function gameloop(timestamp) {
         if(con=='y'){
             kill=false
             end=0
+            while((Date.now()-start)<15){
+            }
             requestAnimationFrame(gameloop)
         }
     }

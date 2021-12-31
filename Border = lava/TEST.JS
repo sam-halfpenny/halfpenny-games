@@ -118,12 +118,15 @@ let lastTime = 0
 dodger.draw(ctx)
 
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
     dodger.update(deltaTime);
     dodger.draw(ctx);
     if (!dodger.x){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
 }

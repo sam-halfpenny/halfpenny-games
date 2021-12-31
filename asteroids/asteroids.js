@@ -395,7 +395,9 @@ let lastTime = 0
 let loop=0
 function gameloop(timestamp) {
     let deltaTime = timestamp - lastTime;
+    console.log(deltaTime)
     lastTime = timestamp;
+    let start = Date.now()
     loop++
     ctx.clearRect(0,0,GAME_WIDTH,GAME_HEIGHT);
     bullets.forEach(element => {
@@ -459,6 +461,8 @@ function gameloop(timestamp) {
     dodger1.draw(ctx);
     document.getElementById('score').textContent='score:'+score
     if(!kill){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
     else{

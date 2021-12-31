@@ -315,6 +315,7 @@ let lastTime = 0
 b1= new bomber()
 new Handler()
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -328,11 +329,11 @@ function gameloop(timestamp) {
             pow.update()
         }
     })
-    setTimeout(function(){
-        if(!kill){
-            requestAnimationFrame(gameloop)
+    if(!kill){
+        while((Date.now()-start)<15){
         }
-    },3)
+        requestAnimationFrame(gameloop)
+    }
     
     
     

@@ -177,7 +177,7 @@ Paddle.draw(ctx)
 let lastTime = 0
 
 function gameloop(timestamp) {
-
+    let start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     ctx.clearRect(0,0,800,600);
@@ -188,6 +188,8 @@ function gameloop(timestamp) {
     ball.update(deltaTime)
     ball.draw(ctx);
     if(!ball.isDone){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
 }

@@ -457,6 +457,7 @@ let lastTime = 0
 dodger.draw(ctx)
 let loop=0
 function gameloop(timestamp) {
+    var start = Date.now()
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     loop++
@@ -486,6 +487,8 @@ function gameloop(timestamp) {
     // tiltfactor+=0.5
     // rotationfactor++
     if (!dodger.x){
+        while((Date.now()-start)<15){
+        }
         requestAnimationFrame(gameloop)
     }
     else{
