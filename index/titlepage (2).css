@@ -1,0 +1,233 @@
+body {
+    background: linear-gradient(-90deg, #33ccff, #3399ff, #0066ff,#0066cc,#33ccff);
+    background-size: 10000000000% 10000000000%;
+    -webkit-animation: gradient 5s ease infinite;
+    animation: gradient 30s ease infinite;
+    
+    /*background-color: blue; /* For browsers that do not support gradients */
+    /*background-image: linear-gradient(cyan,blue);*/
+    background-repeat: no-repeat;
+    text-align: center;
+    align-items: center;
+
+    vertical-align: middle;
+
+}
+
+@-webkit-keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+  
+  }
+.timage{
+    width:auto;
+    height:100px;
+    background:transparent;
+    border-radius:10px
+
+}
+.conbar {
+    display: inline-grid;
+    grid-template-columns: auto auto auto auto auto;
+    border: solid;
+    border-color: #3399ff;
+    width: 75%;
+    height: 149px;
+    margin: 0px;
+    overflow: hidden;
+    background: #3399ff;
+    gap: 1rem;
+    border-radius: 10px;
+    box-shadow: 0 0 25px #3399ff,0 0 25px #3389ff,0 0 25px #3409ff;
+}
+.conbar-item {
+    background-color: #3399ff;
+    border: solid 0px #3399ff;
+    font-size: 20px;
+    text-align: center;
+    height: 150px;
+
+}
+.textcon {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    color: black;
+    text-decoration-color: #3399ff;
+    text-decoration-line:underline;
+}
+
+ 
+.grid-container {
+    grid-auto-columns:360px;
+    grid-auto-rows:360px;
+    grid-template-columns:auto auto auto;
+    display: grid;
+    
+    background-color: transparent;
+    padding: 10px;
+    border-color: transparent;
+	
+
+}
+
+.grid-item {
+    background-color: transparent;
+    border: 0px solid rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    font-size: 30px;
+    text-align: center;
+    
+}
+
+
+    
+
+
+a {
+    color: #00ff00;
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    text-align: center;
+}
+
+h1 {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+h6 {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+h5 {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+h2 {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+h1 {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+}
+
+.container {
+    position: relative;
+    
+    vertical-align: middle;
+}
+
+.image {
+    border-radius:10px;
+    display: block;
+    width: 350px;
+    height: auto;
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+    
+}
+
+    .image:hover {
+        width: 370px;
+        height: auto;
+        transition: .5s ease;
+        display: block;
+        perspective-origin:center;
+        margin-left:auto;
+        margin-right:auto;
+    }
+
+        .image:hover .overlay {
+            width: 20000px;
+            height: auto;
+        }
+
+
+.overlay {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background-color: #008CBA;
+    overflow: hidden;
+    width: 350px;
+    height: 0;
+    transition: .2s ease;
+    display: block;
+
+    vertical-align: middle;
+    align-items: center;
+    border-bottom-right-radius: 9px;
+    border-bottom-left-radius: 9px;
+	display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.all:hover .overlay{
+    transition: .5s ease;
+    width: 376px;
+    
+}
+.all:hover .image {
+    transition: .5s ease;
+    width: 370px;
+    border: 3px solid lightgray;
+}
+.container:hover .overlay {
+    bottom: 0;
+    height: 20%;
+    
+}
+.overlay:hover {
+    opacity: 50%;
+}
+
+.text {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+@supports (display: grid) {
+    main {
+        max-width: 10000px;
+        margin: 0;
+    }
+
+    .grid-container{
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 2fr));
+        gap: 5rem;
+    }
+}
