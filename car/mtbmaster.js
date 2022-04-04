@@ -1,31 +1,69 @@
 const GAME_WIDTH=1500
 const GAME_HEIGHT=600
-let linearobs=[{p1:{x:0,y:0},p2:{x:0,y:GAME_HEIGHT}},{p1:{x:0,y:0},p2:{x:GAME_WIDTH,y:0}},{p1:{x:GAME_WIDTH,y:0},p2:{x:GAME_WIDTH,y:GAME_HEIGHT}},{p1:{x:0,y:GAME_HEIGHT},p2:{x:GAME_WIDTH,y:GAME_HEIGHT}}]
+let linearobs=[{p1:{x:0,y:0},p2:{x:0,y:GAME_HEIGHT}},{p1:{x:GAME_WIDTH,y:0},p2:{x:GAME_WIDTH,y:GAME_HEIGHT}},{p1:{x:0,y:GAME_HEIGHT},p2:{x:GAME_WIDTH,y:GAME_HEIGHT}}]
 const cof=0.9
-const cor=0.4
-const rigidity=2
+const cor=0
+let carspeed={x:0,y:0}
+const rigidity=4
 const dampening=0.3
+let head
 let score=0
+let prev
+let maplen=2
 let power=0.5
+let move={left:false,right:false}
 let track=[]
 let COMposition={x:0,y:0}
 let offset=10
+track.push(GAME_HEIGHT)
+track.push(Math.floor(Math.random()*(GAME_HEIGHT/9))+GAME_HEIGHT/9)
+function WORLDBOOM(){
+    let image = document.getElementById("boom")
+    ctx.drawImage(image,GAME_WIDTH/2-150,100,300,100)
+}
+function jump(){
+    let image = document.getElementById("jump")
+    ctx.drawImage(image,100,200,200,100)
+}
+function inverted(){
+    let image = document.getElementById("inverted")
+    ctx.drawImage(image,GAME_WIDTH-350,200,200,100)
+}
 class wheel{
-    constructor(gamewidth,gameheight){
+    constructor(gamewidth,gameheight,size,pos){
         this.gameheight=gameheight
         this.gamewidth=gamewidth
-        this.position={x:GAME_WIDTH/2,y:300}
+        this.position=pos
         this.speed={x:0,y:0}
         this.rspeed=0
-        this.size=10
+        this.size=size
         this.maxSpeed=2
         this.drive=0
+        this.rotlim=1.5
+        this.airtime=0
     }
     draw(){
         DrawCircle(this.size,this.position,ctx,1)
     }
     update(deltaTime) {
         if(!deltaTime) return;
+        if(this.size==10){
+            let COMvector=pndiff(COMposition,this.position)
+            let respeed=recoordinate(pndiff(this.speed,carspeed),COMvector)
+            if(this.drive>0){
+                if(respeed.y<this.rotlim){
+                    respeed={x:respeed.x,y:respeed.y+this.drive/4}
+                }
+            }
+            else if(this.drive<0){
+                if(respeed.y>-this.rotlim){
+                    respeed={x:respeed.x,y:respeed.y+this.drive/4}
+                }
+            }
+            
+            let newspeed=recoordinate(respeed,revert_vector(COMvector))
+            this.speed={x:newspeed.x+carspeed.x,y:newspeed.y+carspeed.y}
+        }
         // console.log(this.rotated)
         this.position.x += this.speed.x;
         this.position.y += this.speed.y;
@@ -41,10 +79,17 @@ class wheel{
             cdot={x:linearobs[i].p1.x+(lvector.x*dp),y:linearobs[i].p1.y+(lvector.y*dp)}
             if(CircleDetect(this.position,this.size,cdot) && (dp>0 && dp<1)){
                 let A=pndiff(this.position,cdot)
+                if(A.y>0){
+                    A={x:-A.x,y:-A.y}
+                }
                 this.position={x:cdot.x+unit_vector(A).x*this.size,y:cdot.y+unit_vector(A).y*this.size}
                 let Ar={x:A.x,y:-A.y}
                 let recspeed=recoordinate(this.speed,A)
                 this.speed=recoordinate({x:-recspeed.x*cor,y:recspeed.y+this.drive},Ar)
+                if(i==2){
+                    this.position.y=300
+                }
+                this.airtime=0
             }
         }
         for(var i=0;i<linearobs.length;i++){
@@ -53,12 +98,73 @@ class wheel{
                 let Ar={x:A.x,y:-A.y}
                 let recspeed=recoordinate(this.speed,A)
                 this.speed=recoordinate({x:-recspeed.x*cor,y:recspeed.y+this.drive},Ar)
+                this.airtime=0
             }
             else if(CircleDetect(this.position,this.size,linearobs[i].p2)){
                 let A=pndiff(this.position,linearobs[i].p2)
                 let Ar={x:A.x,y:-A.y}
                 let recspeed=recoordinate(this.speed,A)
                 this.speed=recoordinate({x:-recspeed.x*cor,y:recspeed.y+this.drive},Ar)
+                this.airtime=0
+            }
+        }
+        this.airtime++
+    }
+
+}
+class body{
+    constructor(){
+        this.relpoints=[
+            {x:0,y:0},
+            {x:0,y:20},
+            {x:0,y:0},
+            {x:-10,y:10},
+            {x:-20,y:0},
+            {x:0,y:0},
+            {x:-7,y:12},
+            {x:-14,y:0}
+        ]
+        this.relhead={x:0,y:20}
+        this.head={x:COMposition.x+this.relhead.x,y:COMposition.y+this.relhead.y}
+        this.points=[]
+        for(i=0;i<this.relpoints.length;i++){
+            this.points.push({x:COMposition.x+this.relpoints[i].x,y:COMposition.y+this.relpoints[i].y})
+        }
+    }
+    draw(){
+        Bdraw(this.points)
+        if(!kill){
+            DrawCircle(5,this.head,ctx,1)
+        }
+    }
+    update(){
+        for(i=0;i<this.points.length;i++){
+            let rotpoint=recoordinate(this.relpoints[i],revert_vector(pndiff(frontwheel.position,COMposition)))
+            this.points[i]={x:COMposition.x+rotpoint.x,y:COMposition.y+rotpoint.y}
+        }
+        let rotpoint=recoordinate(this.relhead,revert_vector(pndiff(frontwheel.position,COMposition)))
+        this.head={x:COMposition.x+rotpoint.x,y:COMposition.y+rotpoint.y}
+        console.log(dot_product(unit_vector(pndiff(this.head,COMposition)),{x:0,y:-1}))
+        if(dot_product(unit_vector(pndiff(this.head,COMposition)),{x:0,y:-1})<-0.7 && payday2>30 && !kill){
+            payday2=0
+            score+=200
+        }
+        let cvector
+        let lvector
+        let dp
+        let cdot
+        if(!kill){
+            for(var i=0;i<linearobs.length;i++){
+                cvector=pndiff(this.head,linearobs[i].p1)
+                lvector=pndiff(linearobs[i].p2,linearobs[i].p1)
+                dp=(dot_product(unit_vector(lvector),unit_vector(cvector))*mag(cvector))/mag(lvector)
+                cdot={x:linearobs[i].p1.x+(lvector.x*dp),y:linearobs[i].p1.y+(lvector.y*dp)}
+                if(CircleDetect(this.head,5,cdot) && (dp>0 && dp<1)){
+                    kill=true
+                    head=new wheel(GAME_WIDTH,GAME_HEIGHT,5,this.head)
+                    frontwheel.drive=0
+                    backwheel.drive=0
+                }
             }
         }
     }
@@ -66,7 +172,7 @@ class wheel{
 function landscapemov(offset){
     let roffset=Math.floor(offset/3)
     // let extraoffset=Math.floor(offset)%3
-    for(var i=4;i<linearobs.length;i++){
+    for(var i=3;i<linearobs.length;i++){
         linearobs[i]={p1:{x:i*gap,y:GAME_HEIGHT-track[i+roffset]*1.25},p2:{x:(i+1)*gap,y:GAME_HEIGHT-track[i+roffset+1]*1.25}}
     }
 }
@@ -150,25 +256,25 @@ function accel_change(pos,accel,r){
 function random_map(){
     let levs=GAME_HEIGHT/3
     let reps=GAME_WIDTH*20
-    track=[Math.floor(Math.random()*(levs/3))+levs/3]
     let accel=0
     let sped=0
-    for(i=1;i<reps;i++){
+    for(i=maplen;i<maplen+reps;i++){
         prev=track[i-1]
         r=Math.floor(Math.random()*3)
         sped=accel_change(prev,sped,r,levs)
         track.push(prev+sped/3)
     }
+    maplen+=reps
 }
 function com(){
     let wvector = pndiff(frontwheel.position,backwheel.position)
     COMposition={x:backwheel.position.x+wvector.x/2,y:backwheel.position.y+wvector.y/2}
     let fwdivvector=unit_vector(pndiff(frontwheel.position,COMposition))
     let bwdivvector=unit_vector(pndiff(backwheel.position,COMposition))
-    let bwmag=mag(pndiff(backwheel.position,COMposition))-25
-    let fwmag=mag(pndiff(frontwheel.position,COMposition))-25
-    let bwacc=mag(pndiff(backwheel.position,COMposition))>25
-    let fwacc=mag(pndiff(frontwheel.position,COMposition))>25
+    let bwmag=mag(pndiff(backwheel.position,COMposition))-30
+    let fwmag=mag(pndiff(frontwheel.position,COMposition))-30
+    let bwacc=mag(pndiff(backwheel.position,COMposition))>30
+    let fwacc=mag(pndiff(frontwheel.position,COMposition))>30
     if(bwacc){
         backwheel.speed={x:backwheel.speed.x-bwdivvector.x*rigidity,y:backwheel.speed.y-bwdivvector.y*rigidity}
     }
@@ -181,7 +287,7 @@ function com(){
     else{
         frontwheel.speed={x:frontwheel.speed.x+fwdivvector.x*rigidity,y:frontwheel.speed.y+fwdivvector.y*rigidity}
     }
-    let carspeed={x:(backwheel.speed.x+frontwheel.speed.x)/2,y:(backwheel.speed.y+frontwheel.speed.y)/2}
+    carspeed={x:(backwheel.speed.x+frontwheel.speed.x)/2,y:(backwheel.speed.y+frontwheel.speed.y)/2}
     let cfws=recoordinate(pndiff(frontwheel.speed,carspeed),fwdivvector)
     let cbws=recoordinate(pndiff(backwheel.speed,carspeed),bwdivvector)
     let fws=recoordinate({x:cfws.x*dampening,y:cfws.y},revert_vector(fwdivvector))
@@ -236,7 +342,7 @@ window.addEventListener("keydown", function(e) {
 }, false);
 //---------------------------------------start shape detection----------------------------------------------------------//
 function rotate_point(point,ang){
-    angle=ang*(Math.PI/180)
+    angle=ang
     let Matrix=[
         [Math.cos(angle),-Math.sin(angle)],
         [Math.sin(angle),Math.cos(angle)]
@@ -400,6 +506,16 @@ function DrawCircle(radius,position,ctx,resolution){
         }
     }
 }
+function BDrawCircle(radius,position,ctx,resolution){
+    for(var i=-radius;i<radius;i+=resolution){
+        for(var j=-radius;j<radius;j+=resolution){
+            let value=Math.floor(Math.sqrt(Math.pow(j,2)+Math.pow(i,2)))
+            if(value<radius && value>radius-1){
+                ctx.fillRect(position.x+i,position.y+j,resolution,resolution)
+            }
+        }
+    }
+}
 function dot_product(vector1,vector2){
     return vector1.x*vector2.x+vector1.y*vector2.y
 }
@@ -423,21 +539,35 @@ function mag(a){
     let a_mag=Math.sqrt(Math.pow(a.x,2)+Math.pow(a.y,2))
     return a_mag
 }
+function Bdraw(points){
+    var i
+    for(i=0;i<points.length-1;i++){
+        JTD(points[i],points[i+1])
+    }
+    JTD(points[points.length-1],points[0])
+}
 //------------------------------------------end shape detection code-------------------------------------------------//
 class Handler{
     constructor(Paddle) {
         document.addEventListener("keydown", event=> {
             switch (event.keyCode) {
                 case 37:
-                    frontwheel.drive=-1
-                    backwheel.drive=-1
-                    //console.log("move left")
+                    if(!kill){
+                        frontwheel.drive=-1
+                        backwheel.drive=-1
+                        move.left=true
+                        //console.log("move left")
+                    }
+                    
                     break;
                 
                 case 39:
-                    frontwheel.drive=1
-                    backwheel.drive=1
-                    //console.log('move right')
+                    if(!kill){
+                        frontwheel.drive=1
+                        backwheel.drive=1
+                        move.right=true
+                        //console.log('move right')
+                    }
                     break;
             
 
@@ -447,13 +577,31 @@ class Handler{
         document.addEventListener("keyup", event=> {
             switch (event.keyCode) {
                 case 37:
-                    frontwheel.drive=0
-                    backwheel.drive=0
+                    if(!kill){
+                        if(move.right==false){
+                            frontwheel.drive=0
+                            backwheel.drive=0
+                        }
+                        else{
+                            frontwheel.drive=1
+                            backwheel.drive=1
+                        }
+                        move.left=false
+                    }
                     break;
                 
                 case 39:
-                    frontwheel.drive=0
-                    backwheel.drive=0
+                    if(!kill){
+                        if(move.left==false){
+                            frontwheel.drive=0
+                            backwheel.drive=0
+                        }
+                        else{
+                            frontwheel.drive=-1
+                            backwheel.drive=-1
+                        }
+                        move.right=false
+                    }
                     break;
                 
 
@@ -463,7 +611,6 @@ class Handler{
     }
 }
 random_map()
-debugger
 let gap=3
 for(var i=0;i<GAME_WIDTH/3-1;i++){
     linearobs.push({p1:{x:i*gap,y:GAME_HEIGHT-track[i]*1.25},p2:{x:(i+1)*gap,y:GAME_HEIGHT-track[i+1]*1.25}})
@@ -471,39 +618,66 @@ for(var i=0;i<GAME_WIDTH/3-1;i++){
 let kill = false
 let canvas = document.getElementById("gamescreen")
 let ctx = canvas.getContext('2d')
-frontwheel = new wheel(GAME_WIDTH,GAME_HEIGHT)
-backwheel = new wheel(GAME_WIDTH,GAME_HEIGHT)
-
-frontwheel.position.x-=50
+frontwheel = new wheel(GAME_WIDTH,GAME_HEIGHT,10,{x:GAME_WIDTH/2,y:GAME_HEIGHT/2})
+backwheel = new wheel(GAME_WIDTH,GAME_HEIGHT,10,{x:GAME_WIDTH/2,y:GAME_HEIGHT/2})
+car = new body()
+let limit=GAME_WIDTH*28
+frontwheel.position.x-=60
 new Handler(frontwheel)
 let lastTime = 0
 let loop=0
+let payday=60
+let payday2=60
 function gameloop(timestamp) {
     let deltaTime = timestamp - lastTime;
     lastTime = timestamp;
     let start = Date.now()
     loop++
+    payday++
+    payday2++
     ctx.clearRect(0,0,GAME_WIDTH,GAME_HEIGHT);
     for(var i=0;i<linearobs.length;i++){
         JTD(linearobs[i].p1,linearobs[i].p2)
     }
-    
     frontwheel.update(deltaTime);
     frontwheel.draw(ctx);
     backwheel.update(deltaTime);
     backwheel.draw(ctx);
     JTD(frontwheel.position,backwheel.position)
     com()
-    // movement=COMposition.x-GAME_WIDTH/2
-    // offset+=movement
-    // backwheel.position.x-=movement
-    // frontwheel.position.x-=movement
-    // landscapemov(offset)
-    if(!kill){
-        while((Date.now()-start)<15){
-        }
-        requestAnimationFrame(gameloop)
+    car.update()
+    car.draw()
+    if(frontwheel.airtime>50 && backwheel.airtime>50 && payday>30){
+        payday=0
+        score+=50
     }
+    if(payday<40){
+        jump()
+    }
+    if(payday2<40){
+        inverted()
+    }
+    document.getElementById('score').textContent='score:'+(score+Math.floor(offset/200))
+    movement=COMposition.x-GAME_WIDTH/2
+    offset+=movement
+    backwheel.position.x-=movement
+    frontwheel.position.x-=movement
+    landscapemov(offset)
+    if(offset>limit){
+        random_map()
+        limit+=limit
+    }
+    if(kill){
+        head.position.x-Math.floor(movement/3)*3
+        head.draw()
+        head.update(deltaTime)
+        if(loop%100<80){
+            WORLDBOOM()
+        }
+    }
+    while((Date.now()-start)<15){
+    }
+    requestAnimationFrame(gameloop)
     
 }
 gameloop()
