@@ -1,5 +1,6 @@
 const GAME_WIDTH=1500
 const GAME_HEIGHT=600
+document.getElementById('player').volume=0.6
 let linearobs=[{p1:{x:0,y:0},p2:{x:0,y:GAME_HEIGHT}},{p1:{x:GAME_WIDTH,y:0},p2:{x:GAME_WIDTH,y:GAME_HEIGHT}},{p1:{x:0,y:GAME_HEIGHT},p2:{x:GAME_WIDTH,y:GAME_HEIGHT}}]
 const cof=0.9
 const cor=0
@@ -161,6 +162,7 @@ class body{
                 cdot={x:linearobs[i].p1.x+(lvector.x*dp),y:linearobs[i].p1.y+(lvector.y*dp)}
                 if(CircleDetect(this.head,5,cdot) && (dp>0 && dp<1)){
                     kill=true
+                    document.getElementById('player').play()
                     head=new wheel(GAME_WIDTH,GAME_HEIGHT,5,this.head)
                     frontwheel.drive=0
                     backwheel.drive=0
